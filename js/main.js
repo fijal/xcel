@@ -13,6 +13,10 @@ function range(size, startAt = 0) {
 
 main_table = new Array(100).fill(null);
 
+function Context() {
+    this.cells = {}
+}
+
 function populate_chart(ast, chart)
 {
     if (!ast) {
@@ -23,7 +27,7 @@ function populate_chart(ast, chart)
     }
     var d = [];
     for (var i = 0; i < 10000; i++) {
-        d.push(ast.eval());
+        d.push(ast.eval(new Context()));
     }
     var min_int = Math.floor(d.min());
     var max_int = Math.ceil(d.max()) + 1;
