@@ -103,7 +103,7 @@ function Range(base, variance)
     this.base = base;
     this.variance = variance;
 
-    this.eval = function () {
+    this.eval = function (context) {
         return gaussianRandom(this.base, this.variance);
     }
 }
@@ -112,7 +112,7 @@ function Value(v)
 {
     this.v = v;
 
-    this.eval = function () {
+    this.eval = function (context) {
         return this.v;
     }
 }
@@ -122,8 +122,14 @@ function Reference(ref_x, ref_y)
     this.ref_x = ref_x;
     this.ref_y = ref_y;
 
-    this.eval = function() {
-        return main_table[this.ref_x * 10 + this.ref_y].eval();
+    this.eval = function (context) {
+        index = this.ref_x * 10 + this.ref_y;
+        cached_value = context.cells[index];
+        if (cached_value === undefined) {
+            cached_value = main_table[index].eval(context);
+            context.cells[index] = cached_value;
+        }
+        return cached_value;
     }
 }
 
@@ -133,9 +139,9 @@ function BinOp(left, right, op)
     this.left = left;
     this.right = right;
 
-    this.eval = function() {
-        var lv = this.left.eval();
-        var rv = this.right.eval();
+    this.eval = function(context) {
+        var lv = this.left.eval(context);
+        var rv = this.right.eval(context);
         if (this.op == '+')
             return lv + rv;
         else if (this.op == '-')
